@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>NetSecure</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 700px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #f8f9fa;
+        }
+
+        h1 {
+            color: #2c3e50;
+        }
+
+        input, button {
+            padding: 12px;
+            font-size: 16px;
+            width: 100%;
+            margin: 10px 0;
+            box-sizing: border-box;
+        }
+
+        button {
+            background-color: #2c3e50;
+            color: white;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+
+        button:hover {
+            background-color: #34495e;
+        }
+
+        #results {
+            margin-top: 30px;
+        }
+
+        .summary {
+            background: white;
+            border-left: 5px solid #2c3e50;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 5px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+            background: white;
+        }
+
+        th, td {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: center;
+        }
+
+        th {
+            background: #2c3e50;
+            color: white;
+        }
+
+        h3 {
+            margin-top: 30px;
+            color: #2c3e50;
+        }
+
+        .loading{
+            text-align:center;
+            font-size:18px;
+            color:#2c3e50;
+            padding:20px;
+        }
+    </style>
+</head>
+
+<body>
+
+<h1>NetSecure</h1>
+
+<p>Enter an IP address or domain to scan:</p>
+
+<input
+type="text"
+id="target"
+placeholder="e.g. 127.0.0.1">
+
+<button onclick="runScan()">
+Scan Now
+</button>
+
+<div id="results"></div>
+
+<script>
+
+async function runScan(){
+
+    const target=document.getElementById("target").value;
+
+    document.getElementById("results").innerHTML=
+    "<div class='loading'>🔍 Scanning network...</div>";
+
+    const response=await fetch("/scan",{
+
+        method:"POST",
+
+        headers:{
+            "Content-Type":"application/json"
+        },
+
+        body:JSON.stringify({
+            target:target
+        })
+
+    });
+
+    const data=await response.json();
+
+    if(data.error){
+
+        document.getElementById("results").innerHTML=
+        "<h3 style='color:red;'>"+data.error+"</h3>";
+
+        return;
+    }
+
+    const totalPorts=data.length;
+
+    let overallRisk="Low";
+
+    if(data.some(item=>item.risk==="High")){
+        overallRisk="High";
+    }
+    else if(data.some(item=>item.risk==="Medium")){
+        overallRisk="Medium";
+    }
+
+    let html=`
+
+    <div class="summary">
+
+    <h2>Scan Summary</h2>
+
+    <p><b>🎯 Target:</b> ${target}</p>
+
+    <p><b>📌 Open Ports:</b> ${totalPorts}</p>
+
+    <p><b>🛡 Overall Risk:</b> ${overallRisk}</p>
+
+    </div>
+
+    <table>
+
+    <tr>
+
+    <th>Host</th>
+
+    <th>Hostname</th>
+
+    <th>Port</th>
+
+    <th>State</th>
+
+    <th>Service</th>
+
+    <th>Risk</th>
+
+    </tr>
+    `;
+
+    data.forEach(item=>{
+
+        let riskBadge="";
+
+        if(item.risk==="High"){
+            riskBadge="<span style='color:red;font-weight:bold;'>🔴 High</span>";
+        }
+        else if(item.risk==="Medium"){
+            riskBadge="<span style='color:orange;font-weight:bold;'>🟡 Medium</span>";
+        }
+        else{
+            riskBadge="<span style='color:green;font-weight:bold;'>🟢 Low</span>";
+        }
+
+        html+=`
+
+        <tr>
+
+        <td>${item.host}</td>
+
+        <td>${item.hostname}</td>
+
+        <td>${item.port}</td>
+
+        <td>${item.state}</td>
+
+        <td>${item.service}</td>
+
+        <td>${riskBadge}</td>
+
+        </tr>
+
+        `;
+
+    });
+
+    html+="</table>";
+
+    html+="<h3>Security Recommendations</h3>";
+
+    data.forEach(item=>{
+
+        if(item.service==="ftp"){
+
+            html+="<p>⚠ <b>FTP:</b> FTP is insecure. Consider using SFTP instead.</p>";
+
+        }
+
+        else if(item.service==="ssh"){
+
+            html+="<p>🔑 <b>SSH:</b> Disable password authentication and use SSH keys.</p>";
+
+        }
+
+        else if(item.service==="http"){
+
+            html+="<p>🌐 <b>HTTP:</b> Enable HTTPS if this service is exposed to the internet.</p>";
+
+        }
+
+        else if(item.service==="telnet"){
+
+            html+="<p>🚨 <b>Telnet:</b> Telnet is insecure. Replace it with SSH.</p>";
+
+        }
+
+        else{
+
+            html+=`<p>🟢 <b>Port ${item.port}</b> appears to be configured normally.</p>`;
+
+        }
+
+    });
+
+    document.getElementById("results").innerHTML=html;
+
+}
+
+</script>
+
+</body>
+</html>
