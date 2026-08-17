@@ -253,6 +253,112 @@ async function runScan(){
 }
 
 </script>
+<hr style="margin-top: 50px;">
 
+<h2>SQL Injection Security Test</h2>
+
+<p>
+    Test the difference between an intentionally vulnerable SQL query
+    and a secure parameterized query.
+</p>
+
+<input
+    type="text"
+    id="sqlUsername"
+    placeholder="Enter username">
+
+<input
+    type="password"
+    id="sqlPassword"
+    placeholder="Enter password">
+
+<button onclick="testSQL()">
+    Test SQL Security
+</button>
+
+<div id="sqlResults"></div>
+
+<script>
+
+async function testSQL() {
+
+    const username =
+        document.getElementById("sqlUsername").value;
+
+    const password =
+        document.getElementById("sqlPassword").value;
+
+    document.getElementById("sqlResults").innerHTML =
+        "Testing SQL security...";
+
+    const response = await fetch("/sql-test", {
+
+        method: "POST",
+
+        headers: {
+            "Content-Type": "application/json"
+        },
+
+        body: JSON.stringify({
+            username: username,
+            password: password
+        })
+
+    });
+
+    const data = await response.json();
+
+    let html = "<h3>SQL Security Results</h3>";
+
+    if (data.vulnerable_login) {
+
+        html += `
+            <p style="color:red;font-weight:bold;">
+                🔴 Vulnerable Login: Input was accepted.
+            </p>
+        `;
+
+    } else {
+
+        html += `
+            <p style="color:green;font-weight:bold;">
+                🟢 Vulnerable Login: Input was rejected.
+            </p>
+        `;
+
+    }
+
+    if (data.secure_login) {
+
+        html += `
+            <p style="color:green;font-weight:bold;">
+                🟢 Secure Login: Authentication successful.
+            </p>
+        `;
+
+    } else {
+
+        html += `
+            <p style="color:green;font-weight:bold;">
+                🛡️ Secure Login: Injection attempt was prevented.
+            </p>
+        `;
+
+    }
+
+    html += `
+        <h3>Security Recommendation</h3>
+
+        <p>
+            Use parameterized SQL queries instead of directly
+            inserting user input into SQL statements.
+        </p>
+    `;
+
+    document.getElementById("sqlResults").innerHTML = html;
+
+}
+
+</script>
 </body>
 </html>
