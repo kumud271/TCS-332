@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scan Results</title>
+</head>
+
+<body>
+    <div class="container mt-5">
+        <h2>Scan Results for {{ target }}</h2>
+
+        <p>
+            Risk Level:
+            {% if risk == "Low" %}
+            <span class="badge bg-success">Low</span>
+            {% elif risk == "Medium" %}
+            <span class="badge bg-warning text-dark">Medium</span>
+            {% else %}
+            <span class="badge bg-danger">High</span>
+            {% endif %}
+        </p>
+
+        <table class="table table-bordered mt-3">
+            <thead>
+                <tr>
+                    <th>Port</th>
+                    <th>Service</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for port in ports %}
+                <tr>
+                    <td>{{ port.number }}</td>
+                    <td>{{ port.service }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <a href="/" class="btn btn-secondary mt-3">Scan Another Target</a>
+    </div>
+</body>
+
+</html>
