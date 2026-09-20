@@ -7,19 +7,34 @@
     <title>NetSecure - Scan</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet"
         integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+    <style>
+        body {
+            background: linear-gradient(135deg, #1e293b, #334155);
+            min-height: 100vh;
+        }
+    </style>
 </head>
 
 <body>
-    <div class="container mt-5">
-        <h2>Scan a Target</h2>
-        <form action="/scan" method="POST">
-            <div class="mb-3">
-                <label for="target" class="form-label">Enter IP Address or Domain</label>
-                <input type="text" class="form-control" id="target" name="target"
-                    placeholder="e.g. 192.168.1.1 or example.com">
-            </div>
-            <button type="submit" class="btn btn-primary">Scan</button>
-        </form>
+    <nav class="navbar navbar-dark bg-dark px-3">
+        <a class="navbar-brand fw-bold" href="/">🛡️ NetSecure</a>
+        <a href="/logs" class="btn btn-outline-light btn-sm">View Logs</a>
+    </nav>
+
+    <div class="d-flex justify-content-center align-items-center" style="min-height: 85vh;">
+        <div class="card shadow-lg p-4" style="width: 100%; max-width: 480px; border-radius: 12px;">
+            <h3 class="text-center mb-1">Scan a Target</h3>
+            <p class="text-center text-muted mb-4">Check open ports and basic security risk</p>
+
+            <form action="/scan" method="POST">
+                <div class="mb-3">
+                    <label for="target" class="form-label">IP Address or Domain</label>
+                    <input type="text" class="form-control form-control-lg" id="target" name="target"
+                        placeholder="e.g. 192.168.1.1 or example.com">
+                </div>
+                <button type="submit" class="btn btn-primary btn-lg w-100">Scan Now</button>
+            </form>
+        </div>
     </div>
 </body>
 
